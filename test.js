@@ -24,7 +24,12 @@ var testData = {
     customerImage: './images/test.jpg',
     customerText: 'Up up up the ziggaraut\nlickety split!',
     customerMessage: 'Gazpacho soup is served cold!',
-
+    card: {
+        pan: '4444333322221111',
+        expiryMonth: '2', // 1 for 3DS 2 for bypass
+        expiryYear: '2021',
+        cv2: '123'
+    },
     recipientFirstName: 'Lexington',
     recipientLastName: 'Smithe',
     recipientTelephone: '07987654321'
@@ -36,7 +41,7 @@ console.log('Email used: ' + testData.customerEmail);
 fixture `Getting Started`
     .page `https://uat-giftli-client.azurewebsites.net`;
 
-test('My first test', async t => {
+test('New Customer - Happy Path', async t => {
     await sessionStorageSet('uiFlags', '{"hideStoryIntroModal": false}');
     // await console.log(await t.eval(() => sessionStorage.getItem('uiFlags')));
     await t
@@ -76,7 +81,7 @@ test('My first test', async t => {
         .click('[data-test="StoryPreviewWrapper-goToCheckout"]')
     location = await t.eval(() => window.location)
     await t.expect(location.pathname).contains('checkout/start')
-        .typeText('[data-test="RegistrationStep1Form-emailInput"]', email)
+        .typeText('[data-test="RegistrationStep1Form-emailInput"]', testData.customerEmail)
         .typeText('[data-test="RegistrationStep1Form-passwordInput"]', testData.customerPassword)
         .click('[data-test="RegistrationStep1Form-submit"]')
     location = await t.eval(() => window.location)
@@ -111,14 +116,107 @@ test('My first test', async t => {
         .typeText('[data-test="PersonalDetailsForm-address_townInput"]', testData.customerAddress.town)
         .typeText('[data-test="PersonalDetailsForm-address_postcodeInput"]', testData.customerAddress.postcode)
         .click('[data-test="RegistrationStep2Form-submit"]')
-        .wait(2000)
+        .wait(5000)
     location = await t.eval(() => window.location)
     await t.expect(location.pathname).contains('checkout/recipient')
         .typeText('[data-test="CheckoutRecipientDetailsForm-firstName"]', testData.recipientFirstName)
-        .typeText('[data-test="CheckoutRecipientDetailsForm-lastName"]', testData.recipientFirstName)
+        .typeText('[data-test="CheckoutRecipientDetailsForm-lastName"]', testData.recipientLastName)
         .typeText('[data-test="CheckoutRecipientDetailsForm-mobileNumber"]', testData.recipientTelephone)
         .click('[data-test="CheckoutRecipientDetailsForm-submit"]')
     location = await t.eval(() => window.location)
     await t.expect(location.pathname).contains('checkout/payment')
-        .wait(5000)
+    var expiryMonthSelect = Selector('[data-test="CheckoutPaymentForm-expiryDateMonthInput"]');
+    var expiryMonthOption = expiryMonthSelect.find('option');
+    var expiryYearSelect = Selector('[data-test="CheckoutPaymentForm-expiryDateYearInput"]');
+    var expiryYearOption = expiryYearSelect.find('option');
+    await t
+        .typeText('[data-test="CheckoutPaymentForm-cardNumberInput"]', testData.card.pan)
+        .click(expiryMonthSelect)
+        .click(expiryMonthOption.withExactText(testData.card.expiryMonth))
+        .expect(expiryMonthSelect.value).eql(testData.card.expiryMonth)
+        .click(expiryYearSelect)
+        .click(expiryYearOption.withExactText(testData.card.expiryYear))
+        .expect(expiryYearSelect.value).eql(testData.card.expiryYear)
+        .typeText('[data-test="CheckoutPaymentForm-cv2Input"]', testData.card.cv2)
+        .click('[data-test="CheckoutPaymentForm-submit"]')
+        .wait(15000)
+    location = await t.eval(() => window.location)
+    await t.expect(location.pathname).contains('checkout/done')
+});
+
+test('Existing Customer - Happy Path', async t => {
+    await sessionStorageSet('uiFlags', '{"hideStoryIntroModal": false}');
+    // await console.log(await t.eval(() => sessionStorage.getItem('uiFlags')));
+    await t
+        //.setTestSpeed(0.8)
+        .click('[data-test=CreateYourGiftcard]')
+    var location = await t.eval(() => window.location)
+    await t.expect(location.pathname).contains('build/recipient')
+        .typeText('[data-test=recipientNameInput]', testData.recipientFirstName)
+        .expect(Selector('[data-test=recipientNameInput]').value).eql(testData.recipientFirstName)
+        .click('[data-test=createStoryButton]')
+    location = await t.eval(() => window.location)
+    await t.expect(location.pathname).contains('build/story')
+        .click('[data-test="StoryIntroModal-continue"]')
+        .click('[data-test=EditStoryCoverPageButton]')
+        .click('[class="indexstyle__DesignInner-sc-1vz59ug-2 ikHSnT"]')
+        .click('[data-test="saveDesignChanges"]')
+        .click('[data-test="AddNewStoryPage"]')
+        .setFilesToUpload('[type="file"]', testData.customerImage)
+        .wait(2000)
+        .typeText('[data-test="storyTextContentDiv"]', testData.customerText)
+        .click('[data-test="IAmDoneEditingButton"]')
+        .click('[data-test="addGiftcardAnchor"]')
+    location = await t.eval(() => window.location)
+    await t.expect(location.pathname).contains('build/giftcard')
+        .click('[data-test="giftcardValue-10"]')
+        .click('[data-test="addMessageAnchor"]')
+    location = await t.eval(() => window.location)
+    await t.expect(location.pathname).contains('build/gifttag')
+        .typeText('[label="Add your gift tag message"]', testData.customerMessage)
+        .typeText('[data-test="senderNameInput"]', testData.customerFirstName + ' ' + testData.customerLastName)
+        .click('[data-test="previewButton"]')
+    location = await t.eval(() => window.location)
+    await t.expect(location.pathname).contains('build/date')
+        .click('[data-test="StoryOpenDate-previewButton"]')
+    location = await t.eval(() => window.location)
+    await t.expect(location.pathname).contains('preview')
+        .click('[data-test="StoryPreviewWrapper-goToCheckout"]')
+    location = await t.eval(() => window.location)
+    await t.expect(location.pathname).contains('checkout/start')
+        .click('[class="indexstyle__LinkCta-sc-1vwd5dm-0 fACtHK"]')
+    location = await t.eval(() => window.location)
+    await t.expect(location.pathname).contains('checkout/login')
+        .typeText('[data-test="LoginForm-emailAddressInput"]', testData.customerEmail)
+        .typeText('[data-test="LoginForm-passwordInput"]', testData.customerPassword)
+        .click('[data-test="LoginForm-submit"]')
+    location = await t.eval(() => window.location)
+    await t.expect(location.pathname).contains('checkout/update-personal-details')
+        .click('[data-test="UpdatePersonalDetails-submit"]')
+    location = await t.eval(() => window.location)
+    await t.expect(location.pathname).contains('checkout/recipient')
+        .typeText('[data-test="CheckoutRecipientDetailsForm-firstName"]', testData.recipientFirstName)
+        .typeText('[data-test="CheckoutRecipientDetailsForm-lastName"]', testData.recipientLastName)
+        .typeText('[data-test="CheckoutRecipientDetailsForm-mobileNumber"]', testData.recipientTelephone)
+        .click('[data-test="CheckoutRecipientDetailsForm-submit"]')
+    location = await t.eval(() => window.location)
+    await t.expect(location.pathname).contains('checkout/payment')
+    var expiryMonthSelect = Selector('[data-test="CheckoutPaymentForm-expiryDateMonthInput"]');
+    var expiryMonthOption = expiryMonthSelect.find('option');
+    var expiryYearSelect = Selector('[data-test="CheckoutPaymentForm-expiryDateYearInput"]');
+    var expiryYearOption = expiryYearSelect.find('option');
+    await t
+        .typeText('[data-test="CheckoutPaymentForm-cardNumberInput"]', testData.card.pan)
+        .click(expiryMonthSelect)
+        .click(expiryMonthOption.withExactText(testData.card.expiryMonth))
+        .expect(expiryMonthSelect.value).eql(testData.card.expiryMonth)
+        .click(expiryYearSelect)
+        .click(expiryYearOption.withExactText(testData.card.expiryYear))
+        .expect(expiryYearSelect.value).eql(testData.card.expiryYear)
+        .typeText('[data-test="CheckoutPaymentForm-cv2Input"]', testData.card.cv2)
+        .click('[data-test="CheckoutPaymentForm-submit"]')
+        .wait(15000)
+    location = await t.eval(() => window.location)
+    await t.expect(location.pathname).contains('checkout/done')
+
 });
