@@ -54,7 +54,7 @@ test('My first test', async t => {
         .click('[class="indexstyle__DesignInner-sc-1vz59ug-2 ikHSnT"]')
         .click('[data-test="saveDesignChanges"]')
         .click('[data-test="AddNewStoryPage"]')
-        .setFilesToUpload('[type="file"]', testDate.customerImage)
+        .setFilesToUpload('[type="file"]', testData.customerImage)
         .wait(2000)
         .typeText('[data-test="storyTextContentDiv"]', testData.customerText)
         .click('[data-test="IAmDoneEditingButton"]')
