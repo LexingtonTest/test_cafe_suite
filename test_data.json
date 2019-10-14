@@ -1,0 +1,30 @@
+{
+    "customerFirstName" : "Arnold" ,
+    "customerLastName" : "Rimmer",
+    "customerEmail" : "@test.com",
+    "customerPassword": "Pa$$w0rd",
+    "customerDateOfBirth": {
+        "day": "1",
+        "month": "4",
+        "year": "1989"
+    },
+    "customerAddress": {
+        "lineOne" : "Red Dwarf",
+        "lineTwo" : "Salford",
+        "town" : "Manchester",
+        "postcode" : "M50 2BH"
+    },
+    "customerTelephone": "07123456789",
+    "customerImage": "./images/test.jpg",
+    "customerText": "Up up up the ziggaraut\nlickety split!",
+    "customerMessage": "Gazpacho soup is served cold!",
+    "card": {
+        "pan": "4444333322221111",
+        "expiryMonth": "2",
+        "expiryYear": "2021",
+        "cv2": "123"
+    },
+    "recipientFirstName": "Lexington",
+    "recipientLastName": "Smithe",
+    "recipientTelephone": "07987654321"
+}

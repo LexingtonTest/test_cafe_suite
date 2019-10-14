@@ -1,22 +1,23 @@
 const utils = require('./utils.js');
-const config = require('./config.json');
-const testData = config.testData;
+const testData = require('./test_data.json');
+const config = require('./config.json')
+
 
 import { Selector } from 'testcafe';
 import { ClientFunction } from 'testcafe';
 
-const sessionStorageSet = ClientFunction((key,val) => sessionStorage.setItem(key,val))
+const sessionStorageSet = ClientFunction((key,val) => sessionStorage.setItem(key,val));
 
 // Keep the test data fresh
-testData.customerEmail = utils.RandomString(8) + testData.customerEmail
-testData.customerFirstName += utils.RandomString(4)
-testData.customerLastName += utils.RandomString(4)
+testData.customerEmail = utils.RandomString(8) + testData.customerEmail;
+testData.customerFirstName += utils.RandomString(4);
+testData.customerLastName += utils.RandomString(4);
 
 // todo - write the emails used to a file rather than console logging to track test runs
 console.log('Email used: ' + testData.customerEmail);
 
-fixture `Getting Started`
-    .page config.url;
+fixture('Getting Started')
+    .page(config.url)
 
 test('New Customer - Happy Path', async t => {
     await sessionStorageSet('uiFlags', '{"hideStoryIntroModal": false}');
