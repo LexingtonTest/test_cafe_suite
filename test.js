@@ -1,45 +1,22 @@
 const utils = require('./utils.js');
+const config = require('./config.json');
+const testData = config.testData;
+
 import { Selector } from 'testcafe';
 import { ClientFunction } from 'testcafe';
 
 const sessionStorageSet = ClientFunction((key,val) => sessionStorage.setItem(key,val))
 
-var testData = {
-    customerFirstName : 'Arnold' + utils.RandomString(4),
-    customerLastName : 'Rimmer' + utils.RandomString(4),
-    customerEmail : utils.RandomString(8) + '@test.com',
-    customerPassword: 'Pa$$w0rd',
-    customerDateOfBirth: {
-        day: '1',
-        month: '4',
-        year: '1989'
-    },
-    customerAddress: {
-        lineOne : 'Red Dwarf',
-        lineTwo : 'Salford',
-        town : 'Manchester',
-        postcode : 'M50 2BH'
-    },
-    customerTelephone: '07123456789',
-    customerImage: './images/test.jpg',
-    customerText: 'Up up up the ziggaraut\nlickety split!',
-    customerMessage: 'Gazpacho soup is served cold!',
-    card: {
-        pan: '4444333322221111',
-        expiryMonth: '2', // 1 for 3DS 2 for bypass
-        expiryYear: '2021',
-        cv2: '123'
-    },
-    recipientFirstName: 'Lexington',
-    recipientLastName: 'Smithe',
-    recipientTelephone: '07987654321'
+// Keep the test data fresh
+testData.customerEmail = utils.RandomString(8) + testData.customerEmail
+testData.customerFirstName += utils.RandomString(4)
+testData.customerLastName += utils.RandomString(4)
 
-}
-
+// todo - write the emails used to a file rather than console logging to track test runs
 console.log('Email used: ' + testData.customerEmail);
 
 fixture `Getting Started`
-    .page `https://uat-giftli-client.azurewebsites.net`;
+    .page config.url;
 
 test('New Customer - Happy Path', async t => {
     await sessionStorageSet('uiFlags', '{"hideStoryIntroModal": false}');
