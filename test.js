@@ -17,24 +17,20 @@ testData.customerLastName += utils.RandomString(4);
 console.log('Email used: ' + testData.customerEmail);
 
 fixture('Getting Started')
-    .page(config.url)
+    .page(config.envrionment.test)
 
 test('New Customer - Happy Path', async t => {
     await sessionStorageSet('uiFlags', '{"hideStoryIntroModal": false}');
-    // await console.log(await t.eval(() => sessionStorage.getItem('uiFlags')));
     await t
-        //.setTestSpeed(0.8)
-        .click('[data-test=CreateYourGiftcard]')
-    var location = await t.eval(() => window.location)
-    await t.expect(location.pathname).contains('build/recipient')
+        //.setTestSpeed(0.7)
         .typeText('[data-test=recipientNameInput]', testData.recipientFirstName)
         .expect(Selector('[data-test=recipientNameInput]').value).eql(testData.recipientFirstName)
         .click('[data-test=createStoryButton]')
-    location = await t.eval(() => window.location)
+    let location = await t.eval(() => window.location)
     await t.expect(location.pathname).contains('build/story')
         .click('[data-test="StoryIntroModal-continue"]')
         .click('[data-test=EditStoryCoverPageButton]')
-        .click('[class="indexstyle__DesignInner-sc-1vz59ug-2 ikHSnT"]')
+        .click('[class="indexstyle__DesignInner-sc-1vz59ug-3 enWUGU"]')
         .click('[data-test="saveDesignChanges"]')
         .click('[data-test="AddNewStoryPage"]')
         .setFilesToUpload('[type="file"]', testData.customerImage)
@@ -102,6 +98,10 @@ test('New Customer - Happy Path', async t => {
         .typeText('[data-test="CheckoutRecipientDetailsForm-mobileNumber"]', testData.recipientTelephone)
         .click('[data-test="CheckoutRecipientDetailsForm-submit"]')
     location = await t.eval(() => window.location)
+    await t.expect(location.pathname).contains('checkout/confirm')
+    await t
+        .click('[class="ButtonBrandstyle__ButtonBrand-ku0t9s-0 fDbYLj"]')
+    location = await t.eval(() => window.location)
     await t.expect(location.pathname).contains('checkout/payment')
     var expiryMonthSelect = Selector('[data-test="CheckoutPaymentForm-expiryDateMonthInput"]');
     var expiryMonthOption = expiryMonthSelect.find('option');
@@ -117,7 +117,7 @@ test('New Customer - Happy Path', async t => {
         .expect(expiryYearSelect.value).eql(testData.card.expiryYear)
         .typeText('[data-test="CheckoutPaymentForm-cv2Input"]', testData.card.cv2)
         .click('[data-test="CheckoutPaymentForm-submit"]')
-        .wait(15000)
+        .wait(30000)
     location = await t.eval(() => window.location)
     await t.expect(location.pathname).contains('checkout/done')
 });
@@ -127,17 +127,14 @@ test('Existing Customer - Happy Path', async t => {
     // await console.log(await t.eval(() => sessionStorage.getItem('uiFlags')));
     await t
         //.setTestSpeed(0.8)
-        .click('[data-test=CreateYourGiftcard]')
-    var location = await t.eval(() => window.location)
-    await t.expect(location.pathname).contains('build/recipient')
         .typeText('[data-test=recipientNameInput]', testData.recipientFirstName)
         .expect(Selector('[data-test=recipientNameInput]').value).eql(testData.recipientFirstName)
         .click('[data-test=createStoryButton]')
-    location = await t.eval(() => window.location)
+    let location = await t.eval(() => window.location)
     await t.expect(location.pathname).contains('build/story')
         .click('[data-test="StoryIntroModal-continue"]')
         .click('[data-test=EditStoryCoverPageButton]')
-        .click('[class="indexstyle__DesignInner-sc-1vz59ug-2 ikHSnT"]')
+        .click('[class="indexstyle__DesignInner-sc-1vz59ug-3 enWUGU"]')
         .click('[data-test="saveDesignChanges"]')
         .click('[data-test="AddNewStoryPage"]')
         .setFilesToUpload('[type="file"]', testData.customerImage)
@@ -162,7 +159,7 @@ test('Existing Customer - Happy Path', async t => {
         .click('[data-test="StoryPreviewWrapper-goToCheckout"]')
     location = await t.eval(() => window.location)
     await t.expect(location.pathname).contains('checkout/start')
-        .click('[class="indexstyle__LinkCta-sc-1vwd5dm-0 fACtHK"]')
+        .click('[class="indexstyle__LinkCtaInline-e0pbkz-2 ghHBjq"]')
     location = await t.eval(() => window.location)
     await t.expect(location.pathname).contains('checkout/login')
         .typeText('[data-test="LoginForm-emailAddressInput"]', testData.customerEmail)
@@ -177,6 +174,10 @@ test('Existing Customer - Happy Path', async t => {
         .typeText('[data-test="CheckoutRecipientDetailsForm-lastName"]', testData.recipientLastName)
         .typeText('[data-test="CheckoutRecipientDetailsForm-mobileNumber"]', testData.recipientTelephone)
         .click('[data-test="CheckoutRecipientDetailsForm-submit"]')
+    location = await t.eval(() => window.location)
+    await t.expect(location.pathname).contains('checkout/confirm')
+    await t
+        .click('[class="ButtonBrandstyle__ButtonBrand-ku0t9s-0 fDbYLj"]')
     location = await t.eval(() => window.location)
     await t.expect(location.pathname).contains('checkout/payment')
     var expiryMonthSelect = Selector('[data-test="CheckoutPaymentForm-expiryDateMonthInput"]');
